@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { checkSite, SiteInfo } from './actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Loader2, Globe, Shield, Server, AlertCircle, CheckCircle, XCircle, Timer, Info, Github, User } from 'lucide-react'
 import { ModeToggle } from '@/components/mode-toggle'
+import { SiteInfo } from './api/check-site/route'
 
 export default function Home() {
   const [url, setUrl] = useState('')
@@ -26,7 +26,19 @@ export default function Home() {
     setResult(null)
 
     try {
-      const data = await checkSite(url)
+      const response = await fetch('/api/check-site', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
       if (data.error) {
         setError(data.error)
       } else {
